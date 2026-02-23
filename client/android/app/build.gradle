@@ -17,24 +17,9 @@ android {
         }
     }
     buildTypes {
-        debug {
-            signingConfig signingConfigs.debug
-            // Ensure 16kb page alignment for newer Pixel devices
-            packagingOptions {
-                jniLibs {
-                    useLegacyPackaging = false
-                }
-            }
-        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    signingConfigs {
-        debug {
-            v1SigningEnabled true
-            v2SigningEnabled true
         }
     }
 }
