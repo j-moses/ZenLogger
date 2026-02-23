@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+.env
+
+# Android
+client/android/.gradle
+client/android/build
+client/android/app/build
+client/android/local.properties
+
+# Server (Not needed for mobile build)
+server/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.log
