@@ -232,6 +232,46 @@ const TimerPage: React.FC = () => {
         audio.play().catch(e => console.error("Preview failed", e));
     };
 
+    const handleExport = async () => {
+        try {
+            const jsonString = await DataService.exportData();
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `zenlogger_backup_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('Export failed:', error);
+            alert('Failed to export data');
+        }
+    };
+
+    const handleImport = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const content = e.target?.result as string;
+            try {
+                if (window.confirm('Importing will overwrite your current settings and history. Continue?')) {
+                    setIsSaving(true);
+                    await DataService.importData(content);
+                    window.location.reload(); // Reload to refresh all state from new data
+                }
+            } catch (error) {
+                console.error('Import failed:', error);
+                alert('Failed to import data. Please ensure the file is a valid ZenLogger backup.');
+                setIsSaving(false);
+            }
+        };
+        reader.readAsText(file);
+    };
+
     const toggleFocusMode = () => {
         setIsFocusMode(!isFocusMode);
     };
@@ -319,6 +359,33 @@ const TimerPage: React.FC = () => {
                         <button disabled={isSaving} onClick={saveSettings}>
                             {isSaving ? 'Saving...' : 'Save Settings'}
                         </button>
+
+                        <div style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+                            <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem' }}>Data Management</h4>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button 
+                                    disabled={isSaving} 
+                                    onClick={handleExport}
+                                    style={{ background: 'var(--secondary-bg)', color: 'var(--text-color)', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                >
+                                    Export
+                                </button>
+                                <button 
+                                    disabled={isSaving} 
+                                    onClick={() => document.getElementById('import-input')?.click()}
+                                    style={{ background: 'var(--secondary-bg)', color: 'var(--text-color)', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                >
+                                    Import
+                                </button>
+                                <input 
+                                    type="file" 
+                                    id="import-input" 
+                                    accept=".json" 
+                                    onChange={handleImport} 
+                                    style={{ display: 'none' }} 
+                                />
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

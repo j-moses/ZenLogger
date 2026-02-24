@@ -48,5 +48,40 @@ export const DataService = {
             key: `setting_${key}`,
             value: JSON.stringify(value)
         });
+    },
+
+    async exportData(): Promise<string> {
+        const keys = await Preferences.keys();
+        const allData: Record<string, any> = {};
+        
+        for (const key of keys.keys) {
+            const { value } = await Preferences.get({ key });
+            if (value) {
+                try {
+                    allData[key] = JSON.parse(value);
+                } catch {
+                    allData[key] = value;
+                }
+            }
+        }
+        
+        return JSON.stringify({
+            version: "1.0.0",
+            timestamp: new Date().toISOString(),
+            data: allData
+        }, null, 2);
+    },
+
+    async importData(jsonString: string): Promise<void> {
+        const parsed = JSON.parse(jsonString);
+        if (!parsed.data) throw new Error("Invalid backup format");
+        
+        const data = parsed.data;
+        for (const key in data) {
+            await Preferences.set({
+                key,
+                value: JSON.stringify(data[key])
+            });
+        }
     }
 };
