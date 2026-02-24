@@ -1,16 +1,61 @@
-# React + Vite
+# ZenLogger - Meditation Timer
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+ZenLogger is a focused, minimalist meditation timer built with React, Vite, and Capacitor. It provides a serene experience with customizable sounds, themes, and a unique Focus Mode.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Minimalist Timer**: Large, clear display with easy-to-adjust goals.
+- **Themes**: 
+  - **Light**: Clean and bright.
+  - **Dark**: Low-light friendly.
+  - **OLED Black**: Pure black theme for maximum battery savings and contrast.
+- **Focus Mode**: A distraction-free mode that replaces the UI with a simple vertical line.
+  - Line height indicates remaining time.
+  - Anti-burn-in movement: Shifts horizontally every minute.
+  - Tap anywhere to exit.
+- **Alert Sounds**: Choose from a variety of calming sounds (Rain, Wind Chimes, Singing Bowls, etc.).
+- **Session History**: Track your meditation progress with a List or Calendar view.
+- **Background Support**: 
+  - Timer stays accurate even when the app is backgrounded.
+  - Local system notifications alert you when your session is complete.
+- **Smart Screen Management**: Keeps the screen awake during Focus Mode, but allows it to sleep once the timer finishes.
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Frontend**: React (TypeScript), Vite
+- **Mobile Framework**: Capacitor
+- **State Management**: React Hooks
+- **Storage**: Capacitor Preferences
+- **Native Plugins**: 
+  - `@capacitor/local-notifications`
+  - `@capacitor/app`
+  - `@capacitor-community/keep-awake`
 
-## Expanding the ESLint configuration
+## Development
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Running the App
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the Vite dev server:
+   ```bash
+   npm run dev
+   ```
+
+### Android Development
+
+1. Sync Capacitor with the Android project:
+   ```bash
+   npx cap sync android
+   ```
+2. Run on a connected device or emulator with live reload:
+   ```bash
+   npx cap run android --live-reload --host <your-ip> --port 5173
+   ```
+   *Note: Use `10.0.2.2` as the host for the Android Emulator.*
+
+## Asset Credits
+
+Sounds sourced from Freesound and Floraphonic.
