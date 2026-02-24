@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { StatusBar } from '@capacitor/status-bar';
+import { NavigationBar } from '@capacitor/navigation-bar';
 import Timer from '../components/Timer';
 import SessionList from '../components/SessionList';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -120,22 +122,31 @@ const TimerPage: React.FC = () => {
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
         
-        // Only keep awake if Focus Mode is ON AND timer is still running
-        if (isFocusMode && currentTimeLeft > 0) {
-            KeepAwake.keepAwake();
-        } else {
-            KeepAwake.allowSleep();
-        }
-
+        // Focus Mode UI control
         if (isFocusMode) {
+            StatusBar.hide();
+            NavigationBar.hide();
+            
+            if (currentTimeLeft > 0) {
+                KeepAwake.keepAwake();
+            } else {
+                KeepAwake.allowSleep();
+            }
+
             interval = setInterval(() => {
                 const randomPos = Math.floor(Math.random() * 80) + 10;
                 setLineLeft(randomPos);
             }, 60000);
+        } else {
+            StatusBar.show();
+            NavigationBar.show();
+            KeepAwake.allowSleep();
         }
         
         return () => {
             if (interval) clearInterval(interval);
+            StatusBar.show();
+            NavigationBar.show();
             KeepAwake.allowSleep();
         };
     }, [isFocusMode, currentTimeLeft > 0]);
