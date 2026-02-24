@@ -1,6 +1,6 @@
 # ZenLogger - Meditation Timer
 
-ZenLogger is a focused, minimalist meditation timer built with React, Vite, and Capacitor. It provides a serene experience with customizable sounds, themes, and a unique Focus Mode.
+ZenLogger is a focused, minimalist meditation timer built with React, Vite, and Capacitor. It provides a serene experience with customizable sounds, themes, and a unique focus mode.
 
 ## Features
 
