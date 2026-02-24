@@ -125,7 +125,15 @@ const TimerPage: React.FC = () => {
         // Focus Mode UI control
         if (isFocusMode) {
             StatusBar.hide();
-            NavigationBar.hide();
+            // Try explicit hide and logging
+            const applyImmersive = async () => {
+                try {
+                    await NavigationBar.hide();
+                } catch (e) {
+                    console.error("Nav hide failed", e);
+                }
+            };
+            applyImmersive();
             
             if (currentTimeLeft > 0) {
                 KeepAwake.keepAwake();

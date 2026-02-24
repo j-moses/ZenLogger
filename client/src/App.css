@@ -238,10 +238,19 @@ body {
     margin: 1.5rem 0;
     font-variant-numeric: tabular-nums;
     color: var(--text-color);
+    transition: color 0.2s ease;
 }
 
-.timer-display:hover {
+.timer-display:not(.disabled):not(.running):hover {
     color: var(--accent-color);
+}
+
+.timer-display.disabled {
+    cursor: not-allowed;
+}
+
+.timer-display.running {
+    cursor: default;
 }
 
 .session-info {
@@ -295,7 +304,7 @@ body {
 
 .elapsed-actions {
     display: flex;
-    gap: 0.5rem;
+    gap: 1.5rem;
     align-items: center;
 }
 
@@ -653,6 +662,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
+    height: 100dvh; /* Use dynamic viewport height for mobile browsers */
     background-color: black;
     z-index: 10000;
     cursor: pointer;
