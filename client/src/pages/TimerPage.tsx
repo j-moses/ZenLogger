@@ -3,7 +3,7 @@ import { KeepAwake } from '@capacitor-community/keep-awake';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { StatusBar } from '@capacitor/status-bar';
-import { NavigationBar } from '@capacitor/navigation-bar';
+import { NavigationBar } from '@capgo/capacitor-navigation-bar';
 import Timer from '../components/Timer';
 import SessionList from '../components/SessionList';
 import ConfirmModal from '../components/ui/ConfirmModal';

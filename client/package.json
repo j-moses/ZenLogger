@@ -18,6 +18,8 @@
     "@capacitor/local-notifications": "^8.0.1",
     "@capacitor/preferences": "^8.0.1",
     "@capacitor/share": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.1",
+    "@capgo/capacitor-navigation-bar": "^8.0.22",
     "date-fns": "^4.1.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
