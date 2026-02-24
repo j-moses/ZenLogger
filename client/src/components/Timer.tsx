@@ -203,7 +203,10 @@ const Timer: React.FC<TimerProps> = ({
           <button onClick={handleSaveEdit} disabled={disabled}>Set</button>
         </div>
       ) : (
-        <div className={`timer-display ${disabled ? 'disabled' : ''}`} onClick={handleTimerClick}>
+        <div 
+          className={`timer-display ${disabled ? 'disabled' : ''} ${isRunning ? 'running' : ''}`} 
+          onClick={handleTimerClick}
+        >
           {formatTime(timeLeft)}
         </div>
       )}
