@@ -1,0 +1,13 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1024" height="1024" fill="#1a1a1a"/>
+  <path d="M512 150c-180 0-330 130-358 300c-5 30-5 60 2 90c20 90 80 170 160 220c80 50 180 70 270 50c90-20 170-80 220-160c30-50 45-110 40-170c-5-80-40-150-100-200c-60-50-140-75-220-75c-20 0-40 2-60 5" 
+        fill="none" 
+        stroke="white" 
+        stroke-width="60" 
+        stroke-linecap="round" 
+        stroke-dasharray="1800"
+        opacity="0.9">
+    <animate attributeName="stroke-dashoffset" from="1800" to="0" dur="2s" fill="freeze" />
+  </path>
+  <circle cx="512" cy="512" r="10" fill="white" opacity="0.5"/>
+</svg>
