@@ -58,17 +58,14 @@ export const DataService = {
     },
 
     async exportData(): Promise<string> {
-        const keys = await Preferences.keys();
-        const allData: Record<string, any> = {};
+        const { keys } = await Preferences.keys();
+        const allData: Record<string, string> = {};
         
-        for (const key of keys.keys) {
+        for (const key of keys) {
             const { value } = await Preferences.get({ key });
-            if (value) {
-                try {
-                    allData[key] = JSON.parse(value);
-                } catch {
-                    allData[key] = value;
-                }
+            if (value !== null) {
+                // Keep it as a raw string to avoid double-serialization issues
+                allData[key] = value;
             }
         }
         
@@ -87,7 +84,7 @@ export const DataService = {
         for (const key in data) {
             await Preferences.set({
                 key,
-                value: JSON.stringify(data[key])
+                value: data[key] // data[key] is already a JSON string from the export
             });
         }
     }

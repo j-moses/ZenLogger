@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { KeepAwake } from '@capacitor-community/keep-awake';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import Timer from '../components/Timer';
 import SessionList from '../components/SessionList';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -257,19 +259,29 @@ const TimerPage: React.FC = () => {
 
     const handleExport = async () => {
         try {
+            setIsSaving(true);
             const jsonString = await DataService.exportData();
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `zenlogger_backup_${new Date().toISOString().split('T')[0]}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            const fileName = `zenlogger_backup_${new Date().toISOString().split('T')[0]}.json`;
+            
+            // Save to filesystem first (Cache directory is accessible by Share plugin)
+            const result = await Filesystem.writeFile({
+                path: fileName,
+                data: jsonString,
+                directory: Directory.Cache,
+                encoding: Encoding.UTF8
+            });
+
+            // Share the file
+            await Share.share({
+                title: 'ZenLogger Data Backup',
+                url: result.uri,
+                dialogTitle: 'Save ZenLogger Backup'
+            });
         } catch (error) {
             console.error('Export failed:', error);
-            alert('Failed to export data');
+            alert('Failed to export data. Please ensure the app has storage permissions.');
+        } finally {
+            setIsSaving(false);
         }
     };
 
