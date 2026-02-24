@@ -211,7 +211,9 @@ body {
 [data-theme='oled'] .reset-btn,
 [data-theme='oled'] .reset-btn-mini,
 [data-theme='oled'] .calendar-nav button,
-[data-theme='oled'] .options-menu .data-mgmt-btn {
+[data-theme='oled'] .options-menu .data-mgmt-btn,
+[data-theme='oled'] .modal-btn.delete,
+[data-theme='oled'] .modal-btn.cancel {
     background-color: #000000 !important;
     border: 1px solid #ffffff !important;
     color: #ffffff !important;

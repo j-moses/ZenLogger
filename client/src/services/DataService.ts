@@ -38,6 +38,13 @@ export const DataService = {
         });
     },
 
+    async clearAllSessions(): Promise<void> {
+        await Preferences.set({
+            key: SESSIONS_KEY,
+            value: JSON.stringify([])
+        });
+    },
+
     async getSetting(key: string, defaultValue: any): Promise<any> {
         const { value } = await Preferences.get({ key: `setting_${key}` });
         return value ? JSON.parse(value) : defaultValue;

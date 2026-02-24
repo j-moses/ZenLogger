@@ -7,10 +7,11 @@ import { DataService, Session } from '../services/DataService';
 
 interface ModalConfig {
     isOpen: boolean;
-    type: 'delete' | 'saveEarly' | null;
+    type: 'delete' | 'saveEarly' | 'clearSessions' | null;
     title: string;
     message: string;
     data: any;
+    requiredConfirmText?: string;
 }
 
 const TimerPage: React.FC = () => {
@@ -185,6 +186,17 @@ const TimerPage: React.FC = () => {
         });
     };
 
+    const openClearSessionsModal = () => {
+        setModalConfig({
+            isOpen: true,
+            type: 'clearSessions',
+            title: 'Clear All History',
+            message: 'This will permanently delete ALL your meditation history. This action cannot be undone.',
+            data: null,
+            requiredConfirmText: 'delete'
+        });
+    };
+
     const handleConfirm = async () => {
         if (modalConfig.type === 'delete') {
             setIsSaving(true);
@@ -193,6 +205,17 @@ const TimerPage: React.FC = () => {
                 await fetchSessions();
             } catch (error) {
                 console.error('Error deleting session:', error);
+            } finally {
+                setIsSaving(false);
+            }
+        } else if (modalConfig.type === 'clearSessions') {
+            setIsSaving(true);
+            try {
+                await DataService.clearAllSessions();
+                await fetchSessions();
+                setShowOptions(false);
+            } catch (error) {
+                console.error('Error clearing sessions:', error);
             } finally {
                 setIsSaving(false);
             }
@@ -379,6 +402,14 @@ const TimerPage: React.FC = () => {
                                 >
                                     Import
                                 </button>
+                                <button 
+                                    className="data-mgmt-btn"
+                                    disabled={isSaving} 
+                                    onClick={openClearSessionsModal}
+                                    style={{ background: 'var(--secondary-bg)', color: 'var(--danger-color)', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
+                                >
+                                    Clear
+                                </button>
                                 <input 
                                     type="file" 
                                     id="import-input" 
@@ -412,10 +443,11 @@ const TimerPage: React.FC = () => {
                 isOpen={modalConfig.isOpen}
                 title={modalConfig.title}
                 message={modalConfig.message}
-                confirmText={isSaving ? 'Processing...' : (modalConfig.type === 'delete' ? 'Delete' : 'OK')}
-                confirmClass={modalConfig.type === 'delete' ? 'delete' : 'save'}
+                confirmText={isSaving ? 'Processing...' : (modalConfig.type === 'delete' || modalConfig.type === 'clearSessions' ? 'Delete' : 'OK')}
+                confirmClass={modalConfig.type === 'delete' || modalConfig.type === 'clearSessions' ? 'delete' : 'save'}
                 onConfirm={handleConfirm}
                 onCancel={closeModal}
+                requiredConfirmText={modalConfig.requiredConfirmText}
             />
         </div>
     );
