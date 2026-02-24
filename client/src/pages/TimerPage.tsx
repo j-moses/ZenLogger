@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { KeepAwake } from '@capacitor-community/keep-awake';
 import Timer from '../components/Timer';
 import SessionList from '../components/SessionList';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -16,13 +17,20 @@ const TimerPage: React.FC = () => {
     const [sessions, setSessions] = useState<Session[]>([]);
     const [savedGoal, setSavedGoal] = useState<number>(300);
     const [defaultView, setDefaultView] = useState<string>('list');
-    const [selectedSound, setSelectedSound] = useState<string>('/meditation-bell.wav');
+    const [selectedSound, setSelectedSound] = useState<string>('/sounds/bell-3.mp3');
+    const [currentTheme, setCurrentTheme] = useState<string>('light');
     const [showOptions, setShowOptions] = useState<boolean>(false);
     const [timerKey, setTimerKey] = useState<number>(0);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     
+    // Focus Mode states
+    const [isFocusMode, setIsFocusMode] = useState<boolean>(false);
+    const [currentTimeLeft, setCurrentTimeLeft] = useState<number>(300);
+    const [lineLeft, setLineLeft] = useState<number>(50); // percentage
+    
     const [newDefaultView, setNewDefaultView] = useState<string>('list');
-    const [newSelectedSound, setNewSelectedSound] = useState<string>('/meditation-bell.wav');
+    const [newSelectedSound, setNewSelectedSound] = useState<string>('/sounds/bell-3.mp3');
+    const [newTheme, setNewTheme] = useState<string>('light');
     
     const optionsRef = useRef<HTMLDivElement>(null);
 
@@ -34,8 +42,13 @@ const TimerPage: React.FC = () => {
         data: null
     });
 
+    const themeOptions = [
+        { label: 'Light', value: 'light' },
+        { label: 'Dark', value: 'dark' },
+        { label: 'OLED Black', value: 'oled' },
+    ];
+
     const soundOptions = [
-        { label: 'Original Bell', value: '/meditation-bell.wav' },
         { label: 'Rain', value: '/sounds/bell-3.mp3' },
         { label: 'Wind Chimes', value: '/sounds/alex_jauk-wind-chimes-noise-398733.mp3' },
         { label: 'Singing Bell', value: '/sounds/freesound_community-singing-bell-hit-1-105400.mp3' },
@@ -63,13 +76,19 @@ const TimerPage: React.FC = () => {
         try {
             const goal = await DataService.getSetting('meditationGoal', 300);
             const view = await DataService.getSetting('defaultView', 'list');
-            const sound = await DataService.getSetting('selectedSound', '/meditation-bell.wav');
+            const sound = await DataService.getSetting('selectedSound', '/sounds/bell-3.mp3');
+            const theme = await DataService.getSetting('theme', 'light');
             
             setSavedGoal(goal);
             setDefaultView(view);
             setNewDefaultView(view);
             setSelectedSound(sound);
             setNewSelectedSound(sound);
+            setCurrentTheme(theme);
+            setNewTheme(theme);
+            
+            // Apply theme
+            document.documentElement.setAttribute('data-theme', theme);
         } catch (error) {
             console.error('Error fetching settings:', error);
         }
@@ -95,9 +114,33 @@ const TimerPage: React.FC = () => {
         };
     }, [showOptions]);
 
+    useEffect(() => {
+        let interval: ReturnType<typeof setInterval>;
+        
+        // Only keep awake if Focus Mode is ON AND timer is still running
+        if (isFocusMode && currentTimeLeft > 0) {
+            KeepAwake.keepAwake();
+        } else {
+            KeepAwake.allowSleep();
+        }
+
+        if (isFocusMode) {
+            interval = setInterval(() => {
+                const randomPos = Math.floor(Math.random() * 80) + 10;
+                setLineLeft(randomPos);
+            }, 60000);
+        }
+        
+        return () => {
+            if (interval) clearInterval(interval);
+            KeepAwake.allowSleep();
+        };
+    }, [isFocusMode, currentTimeLeft > 0]);
+
     const handleSessionCompleted = useCallback(async (durationInSeconds: number) => {
         if (durationInSeconds <= 0) return;
         setIsSaving(true);
+        if (isFocusMode) setIsFocusMode(false); // Exit focus mode on complete
         try {
             await DataService.addSession(durationInSeconds);
             await fetchSessions();
@@ -107,13 +150,14 @@ const TimerPage: React.FC = () => {
         } finally {
             setIsSaving(false);
         }
-    }, [fetchSessions]);
+    }, [fetchSessions, isFocusMode]);
 
     const handleGoalChanged = async (newGoalInSeconds: number) => {
         setIsSaving(true);
         try {
             await DataService.setSetting('meditationGoal', newGoalInSeconds);
             setSavedGoal(newGoalInSeconds);
+            setCurrentTimeLeft(newGoalInSeconds);
         } catch (error) {
             console.error('Error persisting goal:', error);
         } finally {
@@ -168,10 +212,13 @@ const TimerPage: React.FC = () => {
         try {
             await Promise.all([
                 DataService.setSetting('defaultView', newDefaultView),
-                DataService.setSetting('selectedSound', newSelectedSound)
+                DataService.setSetting('selectedSound', newSelectedSound),
+                DataService.setSetting('theme', newTheme)
             ]);
             setDefaultView(newDefaultView);
             setSelectedSound(newSelectedSound);
+            setCurrentTheme(newTheme);
+            document.documentElement.setAttribute('data-theme', newTheme);
             setShowOptions(false);
         } catch (error) {
             console.error('Error saving settings:', error);
@@ -185,18 +232,56 @@ const TimerPage: React.FC = () => {
         audio.play().catch(e => console.error("Preview failed", e));
     };
 
+    const toggleFocusMode = () => {
+        setIsFocusMode(!isFocusMode);
+    };
+
+    const lineHeightPercent = Math.min(100, Math.max(0, (currentTimeLeft / savedGoal) * 100));
+
     return (
         <div className={`timer-page ${isSaving ? 'is-loading' : ''}`}>
             {isSaving && <div className="loading-bar" />}
             
+            {isFocusMode && (
+                <div className="focus-overlay" onClick={toggleFocusMode}>
+                    <div 
+                        className="focus-line" 
+                        style={{ 
+                            height: `${lineHeightPercent}%`, 
+                            left: `${lineLeft}%` 
+                        }} 
+                    />
+                </div>
+            )}
+
+            <div className="focus-mode-toggle" onClick={toggleFocusMode} title="Toggle Focus Mode">
+                <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                </svg>
+            </div>
+            
             <div ref={optionsRef}>
                 <div className={`options-icon ${isSaving ? 'disabled' : ''}`} onClick={() => !isSaving && setShowOptions(!showOptions)}>
-                    ⚙️
+                    <svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
                 </div>
                 
                 {showOptions && (
                     <div className="options-menu">
                         <h3>Settings</h3>
+                        <div className="setting-item">
+                            <label>Appearance:</label>
+                            <select 
+                                disabled={isSaving}
+                                value={newTheme} 
+                                onChange={(e) => setNewTheme(e.target.value)}
+                            >
+                                {themeOptions.map(opt => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
                         <div className="setting-item">
                             <label>Default View:</label>
                             <select 
@@ -238,12 +323,12 @@ const TimerPage: React.FC = () => {
                 )}
             </div>
 
-            <h1>Zen Logger</h1>
             <Timer 
                 key={timerKey}
                 onSessionCompleted={handleSessionCompleted} 
                 onSaveEarly={openSaveEarlyModal}
                 onGoalChanged={handleGoalChanged}
+                onTick={setCurrentTimeLeft}
                 initialGoal={savedGoal} 
                 soundPath={selectedSound}
                 disabled={isSaving}

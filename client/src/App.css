@@ -1,3 +1,57 @@
+:root {
+    --bg-color: #f0f2f5;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --text-muted: #666666;
+    --border-color: #dddddd;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --success-color: #28a745;
+    --success-hover: #218838;
+    --danger-color: #dc3545;
+    --danger-hover: #c82333;
+    --secondary-bg: #f8f9fa;
+    --secondary-hover: #e9ecef;
+    --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    --modal-overlay: rgba(0, 0, 0, 0.5);
+    --calendar-grid: #dddddd;
+    --icon-color: #000000;
+}
+
+[data-theme='dark'] {
+    --bg-color: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --text-color: #e0e0e0;
+    --text-muted: #a0a0a0;
+    --border-color: #444444;
+    --accent-color: #3794ff;
+    --accent-hover: #5ba4ff;
+    --success-color: #34c759;
+    --success-hover: #4cd964;
+    --secondary-bg: #383838;
+    --secondary-hover: #4a4a4a;
+    --shadow: 0 4px 10px rgba(0,0,0,0.3);
+    --modal-overlay: rgba(0, 0, 0, 0.7);
+    --calendar-grid: #444444;
+    --icon-color: #e0e0e0;
+}
+
+[data-theme='oled'] {
+    --bg-color: #000000;
+    --card-bg: #000000;
+    --text-color: #ffffff;
+    --text-muted: #888888;
+    --border-color: #222222;
+    --accent-color: #007bff;
+    --accent-hover: #0056b3;
+    --secondary-bg: #111111;
+    --secondary-hover: #222222;
+    --shadow: none;
+    --modal-overlay: rgba(0, 0, 0, 0.8);
+    --calendar-grid: #222222;
+    --icon-color: #ffffff;
+}
+
 body {
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -5,29 +59,36 @@ body {
         sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f0f2f5;
-    color: #333;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .app-container {
     display: flex;
     justify-content: center;
-    align-items: flex-start;
-    padding-top: 5vh;
+    align-items: stretch;
     min-height: 100vh;
 }
 
 .timer-page {
     position: relative;
     text-align: center;
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    max-width: 400px;
+    background: var(--card-bg);
+    padding: calc(2rem + 10px + env(safe-area-inset-top, 0px)) 1rem 1rem 1rem;
     width: 100%;
-    min-height: 600px;
-    overflow: hidden; /* For loading bar */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timer-page h1 {
+    margin: 0.5rem 0;
+    font-size: 1.5rem;
 }
 
 .loading-bar {
@@ -35,7 +96,7 @@ body {
     top: 0;
     left: 0;
     height: 4px;
-    background-color: #007bff;
+    background-color: var(--accent-color);
     width: 100%;
     animation: loading 1.5s infinite ease-in-out;
     z-index: 1000;
@@ -52,37 +113,54 @@ body {
     pointer-events: none;
 }
 
-/* Rest of current styles ... */
-
 /* Options/Settings */
+.focus-mode-toggle {
+    position: absolute;
+    top: calc(1rem + 10px + env(safe-area-inset-top, 0px));
+    left: 1rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    user-select: none;
+    z-index: 10;
+    transition: opacity 0.2s ease;
+    opacity: 0.8;
+    color: var(--icon-color);
+}
+
+.focus-mode-toggle:hover {
+    opacity: 1;
+}
+
 .options-icon {
     position: absolute;
-    top: 1rem;
+    top: calc(1rem + 10px + env(safe-area-inset-top, 0px));
     right: 1rem;
     font-size: 1.5rem;
     cursor: pointer;
     user-select: none;
     z-index: 10;
-    transition: filter 0.2s ease;
-    opacity: 1;
+    transition: color 0.2s ease, opacity 0.2s ease;
+    opacity: 0.8;
+    color: var(--icon-color);
 }
 
 .options-icon:hover {
-    filter: brightness(0.6);
+    opacity: 1;
 }
 
 .options-menu {
     position: absolute;
     top: 3.5rem;
-    right: 1rem;
-    background: white;
-    border: 1px solid #ddd;
-    padding: 1.5rem;
+    right: 0.5rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    padding: 1rem;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    box-shadow: var(--shadow);
     z-index: 100;
     text-align: left;
-    min-width: 200px;
+    width: 85vw;
+    max-width: 280px;
 }
 
 .options-menu h3 {
@@ -103,16 +181,18 @@ body {
 }
 
 .setting-item input, .setting-item select {
-    width: 70px;
+    width: 90px;
     padding: 0.3rem;
-    border: 1px solid #ccc;
+    background: var(--secondary-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     border-radius: 4px;
 }
 
 .options-menu button {
     width: 100%;
     padding: 0.6rem;
-    background-color: #28a745;
+    background-color: var(--success-color);
     color: white;
     border: none;
     border-radius: 4px;
@@ -122,21 +202,43 @@ body {
 }
 
 .options-menu button:hover {
-    background-color: #218838;
+    background-color: var(--success-hover);
+}
+
+/* OLED Theme Overrides */
+[data-theme='oled'] .start-stop-btn,
+[data-theme='oled'] .save-early-btn-mini,
+[data-theme='oled'] .reset-btn,
+[data-theme='oled'] .reset-btn-mini,
+[data-theme='oled'] .calendar-nav button {
+    background-color: #000000 !important;
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
+}
+
+[data-theme='oled'] .modal-btn.save {
+    background-color: #000000 !important;
+    border: 1px solid #ffffff !important;
+    color: #ffffff !important;
+}
+
+[data-theme='oled'] .options-menu button {
+    background-color: #000000 !important;
+    border: 1px solid #ffffff !important;
 }
 
 /* Timer Display */
 .timer-display {
-    font-size: 4.5rem;
+    font-size: clamp(4.5rem, 22vw, 7rem);
     font-weight: bold;
     cursor: pointer;
-    margin: 2rem 0;
+    margin: 1.5rem 0;
     font-variant-numeric: tabular-nums;
-    color: #222;
+    color: var(--text-color);
 }
 
 .timer-display:hover {
-    color: #007bff;
+    color: var(--accent-color);
 }
 
 .session-info {
@@ -144,14 +246,14 @@ body {
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    margin-bottom: 2rem;
-    color: #666;
+    margin-bottom: 1.5rem;
+    color: var(--text-muted);
     font-size: 0.9rem;
     font-weight: 500;
 }
 
 .reset-btn {
-    background: #e9ecef;
+    background: var(--secondary-bg);
     border: none;
     width: 24px;
     height: 24px;
@@ -161,17 +263,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, transform 0.1s;
-    color: #495057;
+    transition: background 0.2s, color 0.2s;
+    color: var(--text-muted);
 }
 
 .reset-btn:hover {
-    background: #dee2e6;
-    color: #212529;
-}
-
-.reset-btn:active {
-    transform: rotate(-180deg);
+    background: var(--secondary-hover);
+    color: var(--text-color);
 }
 
 .timer-controls {
@@ -184,7 +282,7 @@ body {
 .elapsed-info {
     margin-top: 1.5rem;
     font-size: 0.85rem;
-    color: #666;
+    color: var(--text-muted);
     font-weight: 500;
     display: flex;
     flex-direction: column;
@@ -212,52 +310,52 @@ body {
 }
 
 .save-early-btn-mini {
-    background-color: #28a745;
+    background-color: var(--success-color);
     color: white;
 }
 
 .save-early-btn-mini:hover {
-    background-color: #218838;
+    background-color: var(--success-hover);
 }
 
 .reset-btn-mini {
-    background-color: #e9ecef;
-    color: #495057;
+    background-color: var(--secondary-bg);
+    color: var(--text-muted);
 }
 
 .reset-btn-mini:hover {
-    background-color: #dee2e6;
-    color: #212529;
+    background-color: var(--secondary-hover);
+    color: var(--text-color);
 }
 
 /* Modal Button Variations */
 .modal-btn.delete {
-    background-color: #dc3545;
+    background-color: var(--danger-color);
     color: white;
 }
 
 .modal-btn.delete:hover {
-    background-color: #c82333;
+    background-color: var(--danger-hover);
 }
 
 .modal-btn.save {
-    background-color: #28a745;
+    background-color: var(--success-color);
     color: white;
 }
 
 .modal-btn.save:hover {
-    background-color: #218838;
+    background-color: var(--success-hover);
 }
 
 .static-seconds {
-    font-size: 2.5rem;
-    color: #666;
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
+    color: var(--text-muted);
 }
 
 .start-stop-btn {
     font-size: 1.5rem; /* Larger icon */
     padding: 0.75rem 2.5rem;
-    background-color: #007bff;
+    background-color: var(--accent-color);
     color: white;
     border: none;
     border-radius: 8px;
@@ -269,7 +367,7 @@ body {
 }
 
 .start-stop-btn:hover {
-    background-color: #0056b3;
+    background-color: var(--accent-hover);
 }
 
 .start-stop-btn:active {
@@ -285,22 +383,25 @@ body {
 }
 
 .edit-mode input {
-    font-size: 2.5rem;
-    width: 80px;
+    font-size: clamp(3rem, 15vw, 4rem);
+    width: clamp(100px, 40vw, 150px);
     text-align: center;
-    border: 1px solid #007bff;
+    border: 1px solid var(--accent-color);
+    background: var(--secondary-bg);
+    color: var(--text-color);
     border-radius: 6px;
     padding: 0.2rem;
 }
 
 .edit-mode button {
-    padding: 0.5rem 1.2rem;
-    background-color: #007bff;
+    padding: 0.8rem 1.5rem;
+    background-color: var(--accent-color);
     color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
     font-weight: bold;
+    font-size: 1.1rem;
 }
 
 /* Sessions List */
@@ -314,14 +415,19 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.6rem 1rem;
-    background: #f8f9fa;
+    background: var(--secondary-bg);
     border-radius: 6px;
     margin-bottom: 1rem;
+    transition: background 0.2s;
+}
+
+.clickable-header:hover {
+    background: var(--secondary-hover);
 }
 
 .toggle-hint {
     font-size: 0.75rem;
-    color: #6c757d;
+    color: var(--text-muted);
     font-weight: normal;
 }
 
@@ -337,7 +443,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 0.75rem 0.5rem;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid var(--border-color);
 }
 
 .session-data {
@@ -349,7 +455,7 @@ body {
 .delete-session-btn {
     background: none;
     border: none;
-    color: #ccc;
+    color: var(--text-muted);
     font-size: 1rem;
     cursor: pointer;
     padding: 5px;
@@ -358,7 +464,7 @@ body {
 }
 
 .delete-session-btn:hover {
-    color: #dc3545;
+    color: var(--danger-color);
 }
 
 .session-list .duration {
@@ -372,7 +478,7 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--modal-overlay);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -380,10 +486,10 @@ body {
 }
 
 .modal-content {
-    background: white;
+    background: var(--card-bg);
     padding: 2rem;
     border-radius: 12px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow);
     max-width: 400px;
     width: 90%;
     text-align: center;
@@ -391,11 +497,11 @@ body {
 
 .modal-content h3 {
     margin-top: 0;
-    color: #333;
+    color: var(--text-color);
 }
 
 .modal-content p {
-    color: #666;
+    color: var(--text-muted);
     margin-bottom: 2rem;
 }
 
@@ -415,22 +521,22 @@ body {
 }
 
 .modal-btn.cancel {
-    background-color: #f8f9fa;
-    color: #333;
-    border: 1px solid #ddd;
+    background-color: var(--secondary-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
 }
 
 .modal-btn.cancel:hover {
-    background-color: #e9ecef;
+    background-color: var(--secondary-hover);
 }
 
 .modal-btn.confirm {
-    background-color: #dc3545;
+    background-color: var(--danger-color);
     color: white;
 }
 
 .modal-btn.confirm:hover {
-    background-color: #c82333;
+    background-color: var(--danger-hover);
 }
 
 /* Calendar */
@@ -442,7 +548,8 @@ body {
 }
 
 .calendar-nav button {
-    background: #eee;
+    background: var(--secondary-bg);
+    color: var(--text-color);
     border: none;
     width: 30px;
     height: 30px;
@@ -455,7 +562,7 @@ body {
 }
 
 .calendar-nav button:hover {
-    background: #ddd;
+    background: var(--secondary-hover);
 }
 
 .current-month-label {
@@ -470,43 +577,52 @@ body {
 }
 
 .current-month-label.clickable:hover {
-    background: #f0f0f0;
-    color: #007bff;
+    background: var(--secondary-bg);
+    color: var(--accent-color);
 }
 
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(7, 45px); /* Ensure 7 rows total (1 header + 6 weeks) */
+    grid-auto-rows: minmax(40px, auto);
     gap: 1px;
-    background-color: #ddd; /* This creates the borders */
-    border: 1px solid #ddd;
+    background-color: var(--calendar-grid); /* This creates the borders */
+    border: 1px solid var(--calendar-grid);
+    width: 100%;
 }
 
 .calendar-day-header {
-    background-color: #f1f3f5;
-    font-size: 0.7rem;
+    background-color: var(--secondary-bg);
+    color: var(--text-muted);
+    font-size: 0.6rem;
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 4px 0;
 }
 
 .calendar-day {
-    background-color: white;
+    background-color: var(--card-bg);
     padding: 2px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
+    color: var(--text-color);
+    min-height: 45px;
 }
 
 .calendar-day.other-month {
-    background-color: #fafafa;
-    color: #ccc;
+    background-color: var(--bg-color);
+    color: var(--text-muted);
+    opacity: 0.5;
 }
 
 .calendar-day.today {
-    background-color: #e7f1ff;
+    background-color: var(--secondary-bg);
+    font-weight: bold;
+    border: 1px solid var(--accent-color);
 }
 
 .day-number {
@@ -517,12 +633,32 @@ body {
 .day-stats {
     font-size: 0.65rem;
     font-weight: bold;
-    color: #28a745;
+    color: var(--success-color);
     margin-top: 2px;
-    background: #e6f4ea;
+    background: var(--secondary-bg);
     padding: 1px 2px;
     border-radius: 3px;
     width: 90%;
     white-space: nowrap;
     overflow: hidden;
+}
+
+/* Focus Mode */
+.focus-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    z-index: 10000;
+    cursor: pointer;
+}
+
+.focus-line {
+    position: absolute;
+    bottom: 0;
+    width: 2px;
+    background-color: white;
+    transition: height 1s linear, left 0.5s ease-in-out;
 }

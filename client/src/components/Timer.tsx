@@ -1,9 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { App } from '@capacitor/app';
+import { LocalNotifications } from '@capacitor/local-notifications';
 
 interface TimerProps {
   onSessionCompleted: (elapsed: number) => void;
   onSaveEarly: (elapsed: number) => void;
   onGoalChanged: (newGoal: number) => void;
+  onTick?: (timeLeft: number) => void;
   initialGoal: number;
   soundPath: string;
   disabled?: boolean;
@@ -13,6 +16,7 @@ const Timer: React.FC<TimerProps> = ({
   onSessionCompleted, 
   onSaveEarly, 
   onGoalChanged, 
+  onTick,
   initialGoal, 
   soundPath,
   disabled = false
@@ -22,12 +26,12 @@ const Timer: React.FC<TimerProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editMinutes, setEditMinutes] = useState<string | number>(Math.floor((initialGoal || 300) / 60));
   const [currentGoal, setCurrentGoal] = useState(initialGoal || 300);
-  
   const [totalElapsed, setTotalElapsed] = useState(0);
   
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const hasLoggedRef = useRef(false);
   const [prevInitialGoal, setPrevInitialGoal] = useState(initialGoal);
+  const backgroundTimeRef = useRef<number | null>(null);
 
   if (initialGoal !== prevInitialGoal) {
     setPrevInitialGoal(initialGoal);
@@ -44,6 +48,54 @@ const Timer: React.FC<TimerProps> = ({
   useEffect(() => {
     audioRef.current = new Audio(soundPath || "/meditation-bell.wav");
   }, [soundPath]);
+
+  // Background sync logic
+  useEffect(() => {
+    const handleStateChange = async (state: { isActive: boolean }) => {
+      if (state.isActive) {
+        if (backgroundTimeRef.current && isRunning) {
+          const now = Date.now();
+          const diffInSeconds = Math.floor((now - backgroundTimeRef.current) / 1000);
+          
+          setTimeLeft(prev => Math.max(0, prev - diffInSeconds));
+          setTotalElapsed(prev => prev + diffInSeconds);
+          
+          await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
+        }
+        backgroundTimeRef.current = null;
+      } else {
+        if (isRunning && timeLeft > 0) {
+          backgroundTimeRef.current = Date.now();
+          
+          await LocalNotifications.requestPermissions();
+          await LocalNotifications.schedule({
+            notifications: [
+              {
+                title: "Meditation Complete",
+                body: "Your session has finished.",
+                id: 1,
+                schedule: { at: new Date(Date.now() + timeLeft * 1000) },
+                sound: 'bell.wav',
+                attachments: [],
+                actionTypeId: "",
+                extra: null
+              }
+            ]
+          });
+        }
+      }
+    };
+
+    const listener = App.addListener('appStateChange', handleStateChange);
+    
+    return () => {
+      listener.then(l => l.remove());
+    };
+  }, [isRunning, timeLeft]);
+
+  useEffect(() => {
+    if (onTick) onTick(timeLeft);
+  }, [timeLeft, onTick]);
 
   const playSound = () => {
     const audio = audioRef.current;
@@ -170,7 +222,15 @@ const Timer: React.FC<TimerProps> = ({
 
       <div className="timer-controls">
         <button className="start-stop-btn" onClick={toggleTimer} disabled={disabled}>
-          {isRunning ? "⏸" : "▶"}
+          {isRunning ? (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>
+            </svg>
+          ) : (
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          )}
         </button>
       </div>
       
