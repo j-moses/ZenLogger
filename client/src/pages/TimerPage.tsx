@@ -364,6 +364,7 @@ const TimerPage: React.FC = () => {
                             <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '0.9rem' }}>Data Management</h4>
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <button 
+                                    className="data-mgmt-btn"
                                     disabled={isSaving} 
                                     onClick={handleExport}
                                     style={{ background: 'var(--secondary-bg)', color: 'var(--text-color)', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}
@@ -371,6 +372,7 @@ const TimerPage: React.FC = () => {
                                     Export
                                 </button>
                                 <button 
+                                    className="data-mgmt-btn"
                                     disabled={isSaving} 
                                     onClick={() => document.getElementById('import-input')?.click()}
                                     style={{ background: 'var(--secondary-bg)', color: 'var(--text-color)', border: '1px solid var(--border-color)', fontSize: '0.8rem' }}

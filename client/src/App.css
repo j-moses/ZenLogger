@@ -210,7 +210,8 @@ body {
 [data-theme='oled'] .save-early-btn-mini,
 [data-theme='oled'] .reset-btn,
 [data-theme='oled'] .reset-btn-mini,
-[data-theme='oled'] .calendar-nav button {
+[data-theme='oled'] .calendar-nav button,
+[data-theme='oled'] .options-menu .data-mgmt-btn {
     background-color: #000000 !important;
     border: 1px solid #ffffff !important;
     color: #ffffff !important;
