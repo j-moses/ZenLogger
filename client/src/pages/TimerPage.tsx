@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { KeepAwake } from '@capacitor-community/keep-awake';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
-import { StatusBar } from '@capacitor/status-bar';
-import { NavigationBar } from '@capgo/capacitor-navigation-bar';
+import { SystemBars } from '@capacitor/core';
 import Timer from '../components/Timer';
 import SessionList from '../components/SessionList';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -124,16 +123,7 @@ const TimerPage: React.FC = () => {
         
         // Focus Mode UI control
         if (isFocusMode) {
-            StatusBar.hide();
-            // Try explicit hide and logging
-            const applyImmersive = async () => {
-                try {
-                    await NavigationBar.hide();
-                } catch (e) {
-                    console.error("Nav hide failed", e);
-                }
-            };
-            applyImmersive();
+            SystemBars.hide();
             
             if (currentTimeLeft > 0) {
                 KeepAwake.keepAwake();
@@ -146,15 +136,13 @@ const TimerPage: React.FC = () => {
                 setLineLeft(randomPos);
             }, 60000);
         } else {
-            StatusBar.show();
-            NavigationBar.show();
+            SystemBars.show();
             KeepAwake.allowSleep();
         }
         
         return () => {
             if (interval) clearInterval(interval);
-            StatusBar.show();
-            NavigationBar.show();
+            SystemBars.show();
             KeepAwake.allowSleep();
         };
     }, [isFocusMode, currentTimeLeft > 0]);
