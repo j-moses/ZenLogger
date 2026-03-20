@@ -56,9 +56,10 @@ const Timer: React.FC<TimerProps> = ({
         if (backgroundTimeRef.current && isRunning) {
           const now = Date.now();
           const diffInSeconds = Math.floor((now - backgroundTimeRef.current) / 1000);
+          const actualElapsed = Math.min(diffInSeconds, timeLeft);
           
           setTimeLeft(prev => Math.max(0, prev - diffInSeconds));
-          setTotalElapsed(prev => prev + diffInSeconds);
+          setTotalElapsed(prev => prev + actualElapsed);
           
           await LocalNotifications.cancel({ notifications: [{ id: 1 }] });
         }

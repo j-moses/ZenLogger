@@ -62,6 +62,17 @@ body {
     background-color: var(--bg-color);
     color: var(--text-color);
     transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+input, textarea {
+    -webkit-user-select: auto;
+    user-select: auto;
 }
 
 .app-container {
@@ -75,7 +86,7 @@ body {
     position: relative;
     text-align: center;
     background: var(--card-bg);
-    padding: calc(2rem + 10px + env(safe-area-inset-top, 0px)) 1rem 1rem 1rem;
+    padding: calc(2rem + 10px + env(safe-area-inset-top, 0px)) 1rem calc(1rem + env(safe-area-inset-bottom, 20px)) 1rem;
     width: 100%;
     min-height: 100vh;
     display: flex;
@@ -213,7 +224,9 @@ body {
 [data-theme='oled'] .calendar-nav button,
 [data-theme='oled'] .options-menu .data-mgmt-btn,
 [data-theme='oled'] .modal-btn.delete,
-[data-theme='oled'] .modal-btn.cancel {
+[data-theme='oled'] .modal-btn.cancel,
+[data-theme='oled'] .edit-mode button,
+[data-theme='oled'] .edit-mode input {
     background-color: #000000 !important;
     border: 1px solid #ffffff !important;
     color: #ffffff !important;
@@ -239,10 +252,6 @@ body {
     font-variant-numeric: tabular-nums;
     color: var(--text-color);
     transition: color 0.2s ease;
-}
-
-.timer-display:not(.disabled):not(.running):hover {
-    color: var(--accent-color);
 }
 
 .timer-display.disabled {
@@ -398,11 +407,16 @@ body {
     font-size: clamp(3rem, 15vw, 4rem);
     width: clamp(100px, 40vw, 150px);
     text-align: center;
-    border: 1px solid var(--accent-color);
+    border: 1px solid var(--text-color);
     background: var(--secondary-bg);
     color: var(--text-color);
     border-radius: 6px;
     padding: 0.2rem;
+}
+
+.edit-mode input:focus {
+    outline: none;
+    border: 1px solid var(--text-color);
 }
 
 .edit-mode button {
@@ -670,8 +684,8 @@ body {
 
 .focus-line {
     position: absolute;
-    bottom: 0;
-    width: 2px;
+    left: 0;
+    height: 2px;
     background-color: white;
-    transition: height 1s linear, left 0.5s ease-in-out;
+    transition: width 1s linear, top 0.5s ease-in-out;
 }

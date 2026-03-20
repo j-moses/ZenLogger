@@ -132,8 +132,13 @@ const TimerPage: React.FC = () => {
             }
 
             interval = setInterval(() => {
-                const randomPos = Math.floor(Math.random() * 80) + 10;
-                setLineLeft(randomPos);
+                setLineLeft(prev => {
+                    const drift = Math.random() > 0.5 ? 5 : -5;
+                    let newPos = prev + drift;
+                    if (newPos < 5) newPos = prev + 5;
+                    if (newPos > 95) newPos = prev - 5;
+                    return newPos;
+                });
             }, 60000);
         } else {
             SystemBars.show();
@@ -329,8 +334,8 @@ const TimerPage: React.FC = () => {
                     <div 
                         className="focus-line" 
                         style={{ 
-                            height: `${lineHeightPercent}%`, 
-                            left: `${lineLeft}%` 
+                            width: `${lineHeightPercent}%`, 
+                            top: `${lineLeft}%` 
                         }} 
                     />
                 </div>
